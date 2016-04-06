@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<r:applicationManifest r:appUri="http://lyncpool.xxx.com/LyncCallerBlock" 
+	xmlns:r="http://schemas.microsoft.com/lcs/2006/05">
+<r:allowRegistrationBeforeUserServices action="true" />
+  <r:requestFilter methodNames="INVITE" strictRoute="false" registrarGenerated="true" domainSupported="true" />
+    <r:responseFilter reasonCodes="ALL"/>
+	<r:proxyByDefault action="true" />
+    <r:scriptOnly/>
+	<r:splScript><![CDATA[
+/*--
+Module Name: CallerIDFilter.am
+--*/
+
+	///////////////////
+	Blocks = "88888888888;";
+	///////////////////
+
+    if (sipRequest)
+    {
+		//Log("Event", 1, "* * * * * * * ReroutePilotNumtoAA:*  Not a sipRequest. Leaving.");
+		//return;  // Message is not our business. Let Lync handle this.
+    }
+	
+    // Avoid processing RE-INVITEs
+    //
+    foreach (sessionExpires in GetHeaderValues("Session-Expires")) 
+    {
+        if (ContainsString(sessionExpires, "refresher", true)) 
+        {
+            //Log("Event", false, "LarryIsGreat2: * Session refreshing invite. Leaving");
+            return;  
+        }
+    }
+
+    //
+    // INVITE is from a mediation server? If not, end processing
+    //
+    foreach (userAgent in GetHeaderValues("USER-AGENT")) 
+    {
+        if (! ContainsString(userAgent, "mediation", true)) 
+        {
+            //Log("Event", false, "LarryIsGreat2: * Request not from Mediation server. Leaving");
+            return;  // Only external requests are of interest!
+        }
+    }
+	
+	/*
+	if (ContainsString(GetUri(sipRequest.From), "11111111", true))
+	{
+		Log ("Event", false, "Larry: ", PhoneNumbers);
+	}
+	*/
+	foreach (b in Split(Blocks, ";"))
+	{
+		if(ContainsString(GetUri(sipRequest.From), b, true))
+		{
+			Log ("Event", false, "LarryIsGreat2: Block call from [", b, "], raw SIP info: [From:", GetUri(sipRequest.From), "]", "[To:", GetUri(sipRequest.To), "]");
+			Respond(302, "LarryIsGreat2: * Phone call rejected");
+			return;
+		}
+	}
+    return;
+]]></r:splScript>
+</r:applicationManifest>
