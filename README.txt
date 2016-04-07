@@ -7,3 +7,5 @@ How to use:
 	Set-CsServerApplication enable the am script
 
 Need copy the am script to all lync FE servers
+
+- Larry.Song@outlook.com
