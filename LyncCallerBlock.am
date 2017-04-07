@@ -7,12 +7,11 @@
 	<r:proxyByDefault action="true" />
     <r:scriptOnly/>
 	<r:splScript><![CDATA[
-/*--
-Module Name: CallerIDFilter.am
---*/
 
-	///////////////////
-	Blocks = "88888888888;";
+	/////////////////// Add strings you want to block below, seperate each by ';'
+    /////////////////// If a number contains any string, block will happen
+    /////////////////// Eg. if a caller's number is 614321234567, it matches "123456" below, so the call will not reach
+	Blocks = "123456;11111111";
 	///////////////////
 
     if (sipRequest)
